@@ -10,6 +10,17 @@ app.use(cors());
 
 const repositories = [];
 
+// midleware
+function validadeProjectId(request, response, next) {
+  const { id } = request.params;
+
+  if (!isUuid(id)) {
+      return response.status(400).json({ error: "Invalid project ID."});
+  }
+
+  return next();
+}
+
 app.get("/repositories", (request, response) => {
   // TODO
   return response.json(repositories);
@@ -45,6 +56,7 @@ app.put("/repositories/:id", (request, response) => {
       title,
       url,
       techs,
+      likes: repositories[repositoryIndex].likes,
   }
 
   repositories[repositoryIndex] = repository;
@@ -77,11 +89,9 @@ app.post("/repositories/:id/like", (request, response) => {
     return response.status(400).json( { error: 'Repository not found.'})
   }
 
-  const repository = repositories[repositoryIndex]
+  repositories[repositoryIndex].likes++;
   
-  repositories[repositoryIndex].likes = repositories[repositoryIndex].likes + 1;
-  
-  return response.json(repository);
+  return response.json(repositories[repositoryIndex]);
 
 });
 
